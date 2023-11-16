@@ -30,7 +30,7 @@ var map = new ol.Map({
 });
 
 var vectorSource = new ol.source.Vector({
-    url: './data/places_helsinki_2023-10-19-alpha-gehl-cat-min60perConfidence.geojson',
+    url: './data/places-helsinki-2023-10-19-alpha-gehl-cat-min-60per-confidence.geojson',
     format: new ol.format.GeoJSON()
 });
 
