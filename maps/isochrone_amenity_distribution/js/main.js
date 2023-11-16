@@ -168,7 +168,7 @@ function aggregateData(features) {
 }
 
 function createBarChart(data, elementId) {
-    console.log("Data passed to chart:", data); // Debugging
+    console.log("Data passed to chart:", data);
     d3.select(elementId).select("svg").remove();
 
     const containerWidth = document.getElementById(elementId.substring(1)).clientWidth;
