@@ -1,52 +1,98 @@
-var isochroneLayer;
-var pointLayer; 
+const mapConfig = {
+    centerCoordinates: [24.826367, 60.214861],
+    zoomLevels: { min: 13, default: 15.5, max: 17 },
+    extentCoordinates: [24.259512, 59.903851, 25.454228, 60.450752],
+    baseMapUrl: 'https://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+    vectorDataUrl: './data/places-helsinki-2023-10-19-alpha-gehl-cat-min-60per-confidence.geojson'
+};
 
+let isochroneLayer, pointLayer, vectorSource;
 const tooltipElement = document.getElementById('tooltip');
+const map = initializeMap(mapConfig);
 
-var extent = ol.proj.transformExtent(
-    [24.259512, 59.903851, 25.454228, 60.450752], 
-    'EPSG:4326', 
-    'EPSG:3857'
-);
+map.on('singleclick', handleMapClick);
+map.on('pointermove', showTooltipOnHover);
 
-var view = new ol.View({
-    center: ol.proj.fromLonLat([24.826367, 60.214861]), 
-    zoom: 15.5,
-    minZoom: 13,
-    maxZoom: 17,
-    extent: extent
-});
-
-var map = new ol.Map({
-    target: 'map',
-    layers: [
-        new ol.layer.Tile({
-            source: new ol.source.XYZ({
-                url: 'https://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-            })
+// fns. related to map init and layer creation
+function initializeMap(config) {
+    const extent = ol.proj.transformExtent(config.extentCoordinates, 'EPSG:4326', 'EPSG:3857');
+    const map = new ol.Map({
+        target: 'map',
+        view: new ol.View({
+            center: ol.proj.fromLonLat(config.centerCoordinates),
+            zoom: config.zoomLevels.default,
+            minZoom: config.zoomLevels.min,
+            maxZoom: config.zoomLevels.max,
+            extent: extent
         })
-    ],
-    view: view
-});
+    });
 
-var vectorSource = new ol.source.Vector({
-    url: './data/places-helsinki-2023-10-19-alpha-gehl-cat-min-60per-confidence.geojson',
-    format: new ol.format.GeoJSON()
-});
+    olms.apply(map, './data/dark_matter.json', 'your-mapbox-access-token').then(function() {
+        const vectorLayer = createVectorLayer(mapConfig.vectorDataUrl);
+        map.addLayer(vectorLayer);
+    }).catch(function(error) {
+        console.error('Error applying Mapbox style:', error);
+    });
 
-var vectorLayer = new ol.layer.Vector({
-    source: vectorSource,
-    style: new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 2,
-            fill: new ol.style.Fill({color: 'rgba(255, 255, 255, 0.3)'}),
-            stroke: new ol.style.Stroke({color: 'rgba(0, 0, 0, 0.3)', width: 1})
-        })
-    })
-});
+    return map;
+}
 
-map.addLayer(vectorLayer);
+function createVectorLayer(dataUrl) {
+    vectorSource = new ol.source.Vector({
+        url: dataUrl,
+        format: new ol.format.GeoJSON()
+    });
 
+    return new ol.layer.Vector({
+        source: vectorSource,
+        style: createStyle('rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.3)', 2)
+    });
+}
+
+// event handler fns.
+async function handleMapClick(evt) {
+    const coordinate = ol.proj.toLonLat(evt.coordinate);
+    const isochroneData = await getIsochrone(coordinate);
+    displayIsochrone(isochroneData);
+    displayClickedPoint(coordinate);
+    updateBarChartWithIsochroneData(isochroneData);
+}
+
+function showTooltipOnHover(evt) {
+    const feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+        return feature;
+    });
+
+    if (feature) {
+        const geometry = feature.getGeometry();
+        if (geometry && geometry.getType() === 'Point') {
+            const coordinates = geometry.getCoordinates();
+
+            tooltipElement.style.display = 'block';
+            tooltipElement.style.left = `${evt.pixel[0]}px`;
+            tooltipElement.style.top = `${evt.pixel[1] - 15}px`;
+
+            const commonName = feature.get('commonName') || 'N/A';
+            const mainCategory = feature.get('mainCategory') || 'N/A';
+            const gehlCategory = feature.get('GehlCategory') || 'N/A';
+            const confidence = feature.get('confidence') || 'N/A';
+
+            tooltipElement.innerHTML = `
+                <strong>Common name:</strong> ${commonName}<br>
+                <strong>Main category:</strong> ${mainCategory}<br>
+                <strong>Gehl category:</strong> ${gehlCategory}<br>
+                <strong>Confidence:</strong> ${confidence}
+            `;
+        } else {
+            tooltipElement.style.display = 'none';
+        }
+    } else {
+        tooltipElement.style.display = 'none';
+    }
+}
+
+
+// isochrone and point display fns.
 async function getIsochrone(coordinate) {
     const apiKey = '5b3ce3597851110001cf62487c52da6c8a3e4221be79f49e0f4997d8';
     const mode = document.getElementById('modeDropdown').value;
@@ -100,7 +146,7 @@ function displayIsochrone(isochroneData) {
                 color: 'rgba(255, 255, 255, 0.3)'
             }),
             stroke: new ol.style.Stroke({
-                color: '#000000',
+                color: '#fff',
                 width: 1
             })
         })
@@ -127,8 +173,8 @@ function displayClickedPoint(coordinate) {
         style: new ol.style.Style({
             image: new ol.style.Circle({
                 radius: 4,
-                fill: new ol.style.Fill({color: 'black'}),
-                stroke: new ol.style.Stroke({color: 'white', width: 1})
+                fill: new ol.style.Fill({color: 'white'}),
+                stroke: new ol.style.Stroke({color: 'black', width: 1})
             })
         })
     });
@@ -136,11 +182,10 @@ function displayClickedPoint(coordinate) {
     map.addLayer(pointLayer);
 }
 
+// data processing and chart fns.
 function getFeaturesWithinIsochrone(isochroneData) {
     var featuresWithin = [];
     var isochronePolygon = turf.polygon(isochroneData.features[0].geometry.coordinates);
-
-    console.log("Isochrone Polygon:", isochronePolygon);
 
     vectorSource.forEachFeature(function(feature) {
         var coord = ol.proj.transform(feature.getGeometry().getCoordinates(), 'EPSG:3857', 'EPSG:4326');
@@ -168,12 +213,10 @@ function aggregateData(features) {
 }
 
 function createBarChart(data, elementId) {
-    console.log("Data passed to chart:", data);
     d3.select(elementId).select("svg").remove();
 
     const containerWidth = document.getElementById(elementId.substring(1)).clientWidth;
     const containerHeight = document.getElementById(elementId.substring(1)).clientHeight;
-    console.log(document.getElementById(elementId.substring(1)))
 
     const margin = {top: 20, right: 30, bottom: 20, left: 30};
     const minWidth = 100;
@@ -226,42 +269,20 @@ function createBarChart(data, elementId) {
         .attr("fill", "#fff");
 }
 
-map.on('singleclick', async function (evt) {
-    var coordinate = ol.proj.toLonLat(evt.coordinate);
-    var isochroneData = await getIsochrone(coordinate);
-    displayIsochrone(isochroneData);
-    displayClickedPoint(coordinate);
+function updateBarChartWithIsochroneData(isochroneData) {
+    const featuresWithinIsochrone = getFeaturesWithinIsochrone(isochroneData);
+    const aggregatedData = aggregateData(featuresWithinIsochrone);
+    const chartData = Object.entries(aggregatedData.gehlCategoryCounts).map(([key, value]) => ({ key, value }));
+    createBarChart(chartData, '#barChart1');
+}
 
-    var featuresWithinIsochrone = getFeaturesWithinIsochrone(isochroneData);
-    let aggregatedData = aggregateData(featuresWithinIsochrone);
-
-    d3.select('#barChart1').html("");
-    createBarChart(Object.entries(aggregatedData.gehlCategoryCounts).map(([key, value]) => ({key, value})), '#barChart1');
-});
-
-map.on('pointermove', function(evt) {
-    const feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-        return feature;
+// util fns.
+function createStyle(fillColor, strokeColor, radius) {
+    return new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: radius,
+            fill: new ol.style.Fill({ color: fillColor }),
+            stroke: new ol.style.Stroke({ color: strokeColor, width: 1 })
+        })
     });
-
-    if (feature) {
-        const coordinates = feature.getGeometry().getCoordinates();
-        tooltipElement.style.display = 'block';
-        tooltipElement.style.left = evt.pixel[0] + 'px';
-        tooltipElement.style.top = evt.pixel[1] - 15 + 'px';
-
-        const commonName = feature.get('commonName') || 'N/A';
-        const mainCategory = feature.get('mainCategory') || 'N/A';
-        const gehlCategory = feature.get('GehlCategory') || 'N/A';
-        const confidence = feature.get('confidence') || 'N/A';
-
-        tooltipElement.innerHTML = `
-            <strong>Common Name:</strong> ${commonName}<br>
-            <strong>Main Category:</strong> ${mainCategory}<br>
-            <strong>Gehl Category:</strong> ${gehlCategory}<br>
-            <strong>Confidence:</strong> ${confidence}
-        `;
-    } else {
-        tooltipElement.style.display = 'none';
-    }
-});
+}

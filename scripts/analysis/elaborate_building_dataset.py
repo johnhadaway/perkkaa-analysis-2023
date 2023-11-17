@@ -2,6 +2,7 @@ import geopandas as gpd
 import os
 from shapely.geometry import box
 import pandas as pd
+from tqdm import tqdm
 
 def create_transformed_bbox(sw, ne, from_crs, to_crs):
     """bounding box and transform it to the given crs"""
@@ -25,8 +26,17 @@ def calculate_buffered_categories(buildings, places, distances):
 def calculate_simpson_diversity(buildings, categories, distance):
     """simpson's diversity index for each building"""
     div_col = f'simpson_diversity_within_{distance}m'
-    buildings[div_col] = 1 - (buildings[[f'{c}_places_within_{distance}m' for c in categories]] / buildings[f'places_within_{distance}m']).pow(2).sum(axis=1)
-    buildings[div_col].fillna(0, inplace=True) 
+    buildings[div_col] = 0
+    for index, building in tqdm(buildings.iterrows(), total=buildings.shape[0]):
+        places_within_distance = building[f'places_within_{distance}m']
+        if places_within_distance > 0:
+            category_squares_sum = sum(
+                (building[f'{category}_places_within_{distance}m'] / places_within_distance) ** 2
+                for category in categories
+            )
+            buildings.at[index, div_col] = 1 - category_squares_sum
+        else:
+            buildings.at[index, div_col] = 0
     return buildings
 
 base_dir = os.path.join(os.path.dirname(__file__), '..', '..')
@@ -44,18 +54,21 @@ transformed_bbox = create_transformed_bbox(SW, NE, CRS, buildings.crs)
 
 buildings = buildings[buildings.geometry.centroid.within(transformed_bbox)]
 
-buffer_distances = [100, 500, 1000, 1500]
+buffer_distances = [500, 1500]
 buildings = calculate_buffered_categories(buildings, places, buffer_distances)
 for distance in buffer_distances:
     buildings = calculate_simpson_diversity(buildings, ['social', 'necessary', 'optional', 'other'], distance)
 
-buildings['dwellings_per_floor'] = buildings['number_of_dwellings'] / buildings['number_of_floors']
-buildings['dwellings_per_floor_area'] = buildings['number_of_dwellings'] / buildings['floor_area']
+buildings['dwellings_per_floors'] = buildings['number_of_dwellings'] / buildings['number_of_floors']
+buildings['floor_area_per_dwelling'] =  buildings['floor_area'] / buildings['number_of_dwellings']
 buildings['assumed_height_based_on_floors'] = buildings['number_of_floors'] * 3.3
 
-buildings['completion_date'] = pd.to_datetime(buildings['completion_date'], errors='coerce')
-min_date = buildings['completion_date'].min()
-buildings['days_since_earliest'] = (buildings['completion_date'] - min_date).dt.days
+buildings['completion_date_'] = pd.to_datetime(buildings['completion_date'], errors='coerce')
+min_date = buildings['completion_date_'].min()
+buildings['days_since_earliest'] = (buildings['completion_date_'] - min_date).dt.days
 
+print(buildings.crs)
+buildings = buildings.to_crs(4326)
+print(buildings.crs)
 buildings.to_file(output_path, driver='GeoJSON')
 print(f"Updated dataset saved as {output_path}")
