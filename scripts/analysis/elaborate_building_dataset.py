@@ -66,6 +66,8 @@ buildings['assumed_height_based_on_floors'] = buildings['number_of_floors'] * 3.
 buildings['completion_date_'] = pd.to_datetime(buildings['completion_date'], errors='coerce')
 min_date = buildings['completion_date_'].min()
 buildings['days_since_earliest'] = (buildings['completion_date_'] - min_date).dt.days
+buildings['number_of_dwellings'] = pd.to_numeric(buildings['number_of_dwellings'].replace(0, None))
+
 
 print(buildings.crs)
 buildings = buildings.to_crs(4326)

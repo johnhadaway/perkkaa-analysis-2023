@@ -1,0 +1,131 @@
+{
+    "Residential": [
+      "Yhden asunnon talot",
+      "Kahden asunnon talot",
+      "Muut erilliset pientalot",
+      "Rivitalot",
+      "Ketjutalot",
+      "Luhtitalot",
+      "Muut kerrostalot",
+      "Vapaa-ajan asunnot",
+      "Omakotitalot",
+      "Paritalot",
+      "Asuinkerrostalot",
+      "Pienkerrostalot",
+      "Osavuotiseen käyttöön soveltuvat vapaa-ajan asuinrakennukset",
+      "Ympärivuotiseen käyttöön soveltuvat vapaa-ajan asuinrakennukset",
+      "Erityisryhmien asuinrakennukset"
+    ],
+    "Commercial": [
+      "Liike- ja tavaratalot, kauppakeskukset",
+      "Myymälärakennukset",
+      "Kauppakeskukset ja liike- ja tavaratalot",
+      "Muut myymälärakennukset"
+    ],
+    "Industrial": [
+      "Teollisuushallit",
+      "Teollisuus- ja pienteollisuustalot",
+      "Muut teollisuuden tuotantorakennukset",
+      "Yleiskäyttöiset teollisuushallit",
+      "Metallimalmien käsittelyrakennukset"
+    ],
+    "Transportation": [
+      "Kulkuneuvojen suoja- ja huoltorakennukset",
+      "Muut liikenteen rakennukset",
+      "Pysäköintitalot",
+      "Rautatie- ja linja-autoasemat, lento- ja satamaterminaalit",
+      "Pysäköintitalot ja -hallit",
+      "Kulkuneuvojen katokset"
+    ],
+    "Education": [
+      "Peruskoulut, lukiot ja muut",
+      "Ammatilliset oppilaitokset",
+      "Korkeakoulurakennukset",
+      "Tutkimuslaitosrakennukset",
+      "Järjestöjen, liittojen, työnantajien yms. opetusrakennukset",
+      "Muualla luokittelemattomat opetusrakennukset",
+      "Yleissivistävien oppilaitosten rakennukset",
+      "Ammatillisten oppilaitosten rakennukset",
+      "Vapaan sivistystyön opetusrakennukset",
+      "Järjestöjen liittojen työnantajien ja vastaavien opetusrakennukset"
+    ],
+    "Healthcare": [
+      "Keskussairaalat",
+      "Muut terveydenhoitorakennukset",
+      "Terveydenhoidon erityislaitokset (mm. kuntoutuslaitokset)",
+      "Terveyskeskukset",
+      "Kuntoutuslaitokset"
+    ],
+    "Cultural": [
+      "Teatterit, konsertti- ja kongressitalot, oopperat",
+      "Museot, taidegalleriat",
+      "Näyttelyhallit",
+      "Museot ja taidegalleriat",
+      "Näyttely- ja messuhallit",
+      "Teatterit musiikki- ja kongressitalot"
+    ],
+    "Recreational": [
+      "Monitoimi- ja muut urheiluhallit",
+      "Uimahallit",
+      "Tennis-, squash- ja sulkapallohallit",
+      "Jäähallit",
+      "Muut urheilu- ja kuntoilurakennukset",
+      "Urheilu- ja palloiluhallit",
+      "Stadion- ja katsomorakennukset",
+      "Monitoimihallit"
+    ],
+    "Religious": [
+      "Kirkot, kappelit, luostarit, rukoushuoneet",
+      "Seurakuntatalot",
+      "Uskonnonharjoittamisrakennukset"
+    ],
+    "Hospitality": [
+      "Hotellit, motellit, matkustajakodit, kylpylähotellit",
+      "Loma- lepo- ja virkistyskodit",
+      "Vuokrattavat lomamökit ja osakkeet (liiketoiminnallisesti)",
+      "Muut majoitusliikerakennukset",
+      "Asuntolat, vanhusten palvelutalot, asuntolahotellit",
+      "Muut majoitusrakennukset",
+      "Hotellit",
+      "Motellit hostellit ja vastaavat majoitusliikerakennukset"
+    ],
+    "Public Services": [
+      "Vankilat",
+      "Paloasemat",
+      "Väestönsuojat",
+      "Päiväkodit",
+      "Lastenkodit, koulukodit",
+      "Muut sosiaalitoimen rakennukset",
+      "Seurain-, nuoriso- yms. talot",
+      "Muut kokoontumisrakennukset",
+      "Ravintolarakennukset ja vastaavat liikerakennukset",
+      "Seura- ja kerhorakennukset",
+      "Lasten päiväkodit",
+      "Kehitysvammaisten hoitolaitokset",
+      "Navetat, sikalat, kanalat yms.",
+      "Muut huoltolaitosrakennukset",
+      "Voimalaitosrakennukset",
+      "Muut palo- ja pelastustoimen rakennukset",
+      "Kasvihuoneet",
+      "Muut maa-, metsä- ja kalatalouden rakennukset",
+      "Maatalouden varastorakennukset",
+      "Eläinsuojat, ravihevostallit, maneesit",
+      "Muut eläinsuojat",
+      "Muut maa- metsä- ja kalatalouden rakennukset",
+      "Avopalvelujen rakennukset",
+      "Laitospalvelujen rakennukset"
+    ],
+    "Miscellaneous": [
+      "Myymälähallit",
+      "Saunarakennukset",
+      "Talousrakennukset",
+      "Muut rakennukset",
+      "Muualla luokittelemattomat rakennukset",
+      "Yleiskäyttöiset varastot",
+      "Lämmittämättömät varastot",
+      "Lämpimät varastot",
+      "Varastokatokset",
+      "Tietoliikenteen rakennukset",
+      "Materiaalien kierrätysrakennukset"
+    ]
+  }
