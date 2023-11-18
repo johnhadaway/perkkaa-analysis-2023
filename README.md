@@ -3,10 +3,10 @@
   <p><b>Analysis and interactive data visualisations of Perkkaa for Urban Challenge Studio 1<br>(Aalto University, Period I-II 2023)</b></p>
 </div>
 
-## Overview 
+### Overview 
 
-## Data (data/)
+### Data (data/)
 
-## Scripts (scripts/)
+### Scripts (scripts/)
 
-## Maps (dist/)
+### Maps (dist/)
