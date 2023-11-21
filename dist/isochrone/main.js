@@ -256,7 +256,7 @@ function createBarChart(data, elementId) {
         .selectAll("text").attr("fill", "#000");
 
     svg.append("g")
-        .call(d3.axisLeft(y))
+        .call(d3.axisLeft(y).ticks(5))
         .selectAll("text")
         .attr("fill", "#000");
 }

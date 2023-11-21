@@ -69,8 +69,6 @@ buildings['days_since_earliest'] = (buildings['completion_date_'] - min_date).dt
 buildings['number_of_dwellings'] = pd.to_numeric(buildings['number_of_dwellings'].replace(0, None))
 
 
-print(buildings.crs)
 buildings = buildings.to_crs(4326)
-print(buildings.crs)
 buildings.to_file(output_path, driver='GeoJSON')
 print(f"Updated dataset saved as {output_path}")

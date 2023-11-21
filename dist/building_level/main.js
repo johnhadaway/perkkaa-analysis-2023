@@ -1,7 +1,6 @@
 const mapConfig = {
     centerCoordinates: [24.826367, 60.214861],
     zoomLevels: { min: 12, default: 15.5, max: 17 },
-    extentCoordinates: [24.259512, 59.903851, 25.454228, 60.450752],
     styleUrl: './data/style.json'
 };
 
