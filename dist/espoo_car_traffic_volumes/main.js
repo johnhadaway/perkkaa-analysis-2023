@@ -5,6 +5,7 @@ const mapConfig = {
 };
 
 let map;
+let selectedLineId = null;
 const tooltipElement = document.getElementById('tooltip');
 const yearLabel = document.getElementById('yearLabel');
 
@@ -31,13 +32,28 @@ function initializeMap(config) {
     return map;
 }
 
-// fn. to create the car traffic volume layer
-function createTrafficLayer() {
-    map.addSource('trafficCounts', {
-        type: 'geojson',
-        data: './data/espoo-autoliikennemaarat-21-11-2023-min.geojson'
-    });
+// fn. to load the GeoJSON data and add it as a source to the map
+function loadGeoJSONAndAddSource() {
+    fetch('./data/espoo-autoliikennemaarat-21-11-2023-min.geojson')
+        .then(response => response.json())
+        .then(data => {
+            data.features.forEach((feature, index) => {
+                feature.id = index; 
+            });
 
+            map.addSource('trafficCounts', {
+                type: 'geojson',
+                data: data
+            });
+
+            createTrafficLayer();
+            updateTrafficVisualization(document.getElementById('yearSlider').value);
+        })
+        .catch(error => console.error('Error loading GeoJSON data: ', error));
+}
+
+// fn. to create the traffic layer
+function createTrafficLayer() {
     map.addLayer({
         id: 'trafficLayer',
         type: 'line',
@@ -45,15 +61,34 @@ function createTrafficLayer() {
         layout: {},
         paint: {
             'line-width': 2,
-            'line-color': '#FE4A49',
+            'line-color': ['case',
+                ['==', ['id'], selectedLineId], '#ffdf00',
+                '#FE4A49'
+            ],
             'line-opacity': 0.8
         }
     });
 
-    // fn. to to update the line chart when the user clicks on a road
     map.on('click', 'trafficLayer', function(e) {
         if (e.features.length > 0) {
             const feature = e.features[0];
+            
+            if (selectedLineId !== null && selectedLineId !== undefined) {
+                map.setFeatureState(
+                    { source: 'trafficCounts', id: selectedLineId },
+                    { selected: false }
+                );
+                updateLineColor(null); // Pass null to reset the color
+            }
+    
+            selectedLineId = feature.id;
+            map.setFeatureState(
+                { source: 'trafficCounts', id: selectedLineId },
+                { selected: true }
+            );
+    
+            updateLineColor(selectedLineId);
+    
             const trafficData = [
                 { year: 2018, value: feature.properties['traffic_amount_2018'] },
                 { year: 2019, value: feature.properties['traffic_amount_2019'] },
@@ -68,6 +103,8 @@ function createTrafficLayer() {
 
 // fn. to show tooltip on hover
 function showTooltipOnHover(event) {
+    if (!map.getLayer('trafficLayer')) return; 
+
     const features = map.queryRenderedFeatures(event.point, { layers: ['trafficLayer'] });
     if (features.length) {
         const feature = features[0];
@@ -97,19 +134,38 @@ function showTooltipOnHover(event) {
     }
 }
 
-// fn. to update the traffic visualization
 function updateTrafficVisualization(selectedYear) {
     yearLabel.textContent = selectedYear;
     const property = 'traffic_amount_' + selectedYear;
 
-    const maxTrafficAmount = 15000;
+    const stops = [
+        0, 0.1,
+        Math.log10(1 + 1), 0.05,
+        Math.log10(250 + 1), 0.1,
+        Math.log10(500 + 1), 0.2,
+        Math.log10(1000 + 1), 0.3,
+        Math.log10(2000 + 1), 0.4,
+        Math.log10(4000 + 1), 0.5,
+        Math.log10(8000 + 1), 0.6,
+        Math.log10(16000 + 1), 0.8,
+        Math.log10(32000 + 1), 0.9,
+        Math.log10(64000 + 1), 1.0,
+    ];
 
     map.setPaintProperty('trafficLayer', 'line-opacity', [
         'interpolate',
         ['linear'],
-        ['get', property],
-        0, 0,
-        maxTrafficAmount, 1
+        ['log10', ['+', ['get', property], 1]],
+        ...stops
+    ]);
+}
+
+// fn. to update the line color
+function updateLineColor(selectedId) {
+    map.setPaintProperty('trafficLayer', 'line-color', [
+        'case',
+        ['==', ['id'], selectedId], '#000',
+        '#FE4A49'
     ]);
 }
 
@@ -169,8 +225,7 @@ function renderLineChart(data) {
 document.addEventListener('DOMContentLoaded', function () {
     map = initializeMap(mapConfig);
     map.on('load', function () {
-        createTrafficLayer();
+        loadGeoJSONAndAddSource();
         map.on('mousemove', showTooltipOnHover);
-        updateTrafficVisualization(document.getElementById('yearSlider').value);
     });
 });
