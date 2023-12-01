@@ -42,13 +42,13 @@ def calculate_simpson_diversity(buildings, categories, distance):
 base_dir = os.path.join(os.path.dirname(__file__), '..', '..')
 buildings_path = os.path.join(base_dir, 'data', 'raw', 'helsinki-espoo-buildings-joined-16-11-2023.geojson')
 places_path = os.path.join(base_dir, 'data', 'processed', 'places-helsinki-2023-10-19-alpha-gehl-cat-min-60per-confidence.geojson')
-output_path = os.path.join(base_dir, 'data', 'processed', 'bay-buildings-joined-16-11-2023-elaborated.geojson')
+output_path = os.path.join(base_dir, 'data', 'processed', 'study-area-buildings-joined-16-11-2023-elaborated.geojson')
 
 buildings = gpd.read_file(buildings_path)
 places = gpd.read_file(places_path).to_crs(buildings.crs)
 
-SW = (24.781583, 60.165923)
-NE = (24.909075, 60.232232)
+SW = (24.788871, 60.203035)
+NE = (24.849062, 60.223604)
 CRS = 'EPSG:4326'
 transformed_bbox = create_transformed_bbox(SW, NE, CRS, buildings.crs)
 
