@@ -81,6 +81,21 @@ function initializeMap(config) {
                 'fill-opacity': 1
             }
         });
+
+        map.addSource('perkkaa-area', {
+            type: 'geojson',
+            data: './data/perkkaa_area.geojson'
+        });
+        map.addLayer({
+            id: 'perkkaa-area-layer',
+            type: 'fill',
+            source: 'perkkaa-area',
+            layout: {},
+            paint: {
+                'fill-color': 'rgba(255, 0, 0, 0.1)',
+                'fill-outline-color': 'red'
+            }
+        });
     });
 
     return map;
