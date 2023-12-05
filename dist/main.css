@@ -95,3 +95,22 @@ a:hover {
     margin: 0;
     font-size: 12px;
 }
+
+@media (max-width: 800px) {
+    #content-wrapper {
+        width: 95%;
+        -ms-overflow-style: none;
+    }
+
+    .project > a {
+        width: 80%;
+        display: block;
+        user-select: none;
+        touch-action: manipulation;
+    }
+
+    .project > .description, .project > .meta {
+        width: 100%;
+        touch-action: manipulation;
+    }
+}
